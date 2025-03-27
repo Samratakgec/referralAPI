@@ -23,7 +23,7 @@ This is a **Spring Boot**-based **Referral System** API that uses **MongoDB** as
 ### 2. User Controller (`/api/user/`)
 | HTTP Method | Endpoint       | Description |
 |-------------|--------------|-------------|
-| `POST`      | `/sign-up`     | Create a new user with an optional referral code |
+| `POST`      | `/sign-up`     | Create a new user with an optional referral code and also verify the provided referral code is valid or not and generate new referral entry in referral table |
 | `GET`       | `/login`       | Log in a user |
 | `GET`       | `/logout`      | Log out the current user |
 
@@ -32,7 +32,7 @@ This is a **Spring Boot**-based **Referral System** API that uses **MongoDB** as
 ### 3. User Profile Controller (`/api/userProfile/`)
 | HTTP Method | Endpoint       | Description |
 |-------------|--------------|-------------|
-| `POST`      | `/new`         | Create a user profile and update referral records |
+| `POST`      | `/new`         | Create a user profile and update referral records accordingly |
 
 ---
 
@@ -64,7 +64,7 @@ Ensure you have the following installed:
 ### 2. Steps to Run
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-repo/referralAPI.git
+   git clone https://github.com/Samratakgec/referralAPI.git
    cd referralAPI
 2. **Run Mongo db**
    Run following command in cmd (open it as administrator)
