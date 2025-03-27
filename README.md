@@ -96,8 +96,7 @@ This document provides example request bodies for testing the Referral API using
 ```json
 {
     "email" : "abc@gmail.com",
-    "password" : "sbc",
-    "refGain" : "67e4f199bb0b6959a5b0f2e3"
+    "password" : "sbc"
 }
 ```
 ## **3. User Logout**
