@@ -49,7 +49,7 @@ This is a **Spring Boot**-based **Referral System** API that uses **MongoDB** as
 - **`UserProfileInterface`**: Manages user profiles.
 
 ### 3. Utilities
-- **`UserSession`**: Maintains user session data.
+- **`UserSession`**: Maintains user session data such as user's object id and have functionality to set and clear user's object id data from system.
 
 ---
 
@@ -90,7 +90,37 @@ This document provides example request bodies for testing the Referral API using
     "password" : "sbc",
     "refGain" : "67e4f199bb0b6959a5b0f2e3"
 }
+```
+## **2. User Login**
+### **Endpoint:** `GET /api/user/login`
+```json
+{
+    "email" : "abc@gmail.com",
+    "password" : "sbc",
+    "refGain" : "67e4f199bb0b6959a5b0f2e3"
+}
+```
+## **3. User Logout**
+### **Endpoint:** `GET /api/user/logout`
 
-## **2. User Login
-   
+## **4. Create User Profile**
+### **Endpoint:** `POST /api/userProfile/new`  
+ 
+```json
+{
+    "name" : "Samrat" ,
+    "phoneNumber" : "920887423",
+    "bio" : "i am a Java backend developer"
+}
+```
+## **5. Track successfull users and pending users of a referral code of a user**
+### **Endpoint:** `GET http://localhost:8080/api/referral/track`  
+
+## 6. Download All Referral Records in CSV Format  
+
+### **Endpoint:**  
+`GET http://localhost:8080/api/referral/download`  
+
+### **Note:**  
+Make sure to hit this endpoint in a **browser**, so the CSV file gets downloaded to your system.  
 
