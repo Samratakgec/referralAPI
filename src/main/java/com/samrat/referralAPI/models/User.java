@@ -7,7 +7,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 @Document(collection = "users")
@@ -33,6 +32,8 @@ public class User {
     private String refGen;
 
     private ObjectId profileId;  // Reference to Profile's ObjectId
+
+    private Role role;
 
     public ObjectId getId() {
         return id;
@@ -82,4 +83,11 @@ public class User {
         this.profileId = profileId;
     }
 
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
 }

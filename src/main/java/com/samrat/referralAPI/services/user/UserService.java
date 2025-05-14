@@ -1,11 +1,19 @@
 package com.samrat.referralAPI.services.user;
 
+import com.samrat.referralAPI.models.LogInPayload;
+import com.samrat.referralAPI.models.Referral;
+import com.samrat.referralAPI.models.SignUpPayload;
 import com.samrat.referralAPI.models.User;
+import com.samrat.referralAPI.repositories.ReferralRepo;
 import com.samrat.referralAPI.repositories.UserRepo;
+import com.samrat.referralAPI.services.referral.ReferralService;
+import com.samrat.referralAPI.utils.JwtUtil;
 import com.samrat.referralAPI.utils.UserSession;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,56 +23,79 @@ import java.util.Optional;
 @Service
 public class UserService implements UserInterface {
     @Autowired
-    UserSession userSession ;
+    JwtUtil jwtUtil ;
 
     @Autowired
-    private UserRepo userRepo;
+    UserRepo userRepo ;
 
-//    @Autowired
-//    private BCryptPasswordEncoder passwordEncoder; // Password encoder bean
+    @Autowired
+    PasswordEncoder passwordEncoder ;
+
+    @Autowired
+    ReferralRepo referralRepo ;
+
 
     @Override
-    @Transactional
-    public String createUser(User user) {
+    public String createUser(SignUpPayload signUpPayload) {
         try {
-            // Check for existing user by email
-
-            Optional<User> existingUser = userRepo.findByEmail(user.getEmail());
-            if (existingUser.isPresent()) {
-                return "409"; // User already exists
+            // check for existing user
+            if (userRepo.findByEmail(signUpPayload.getEmail()).isPresent()){
+                return "409" ;
             }
 
-            // Hash the password before saving
-            //String hashedPassword = passwordEncoder.encode(user.getPassword());
-            String hashedPassword = user.getPassword() ;
-            user.setPassword(hashedPassword);
+            // db entry of user
+            User newUser = new User();
+            newUser.setEmail(signUpPayload.getEmail());
+            newUser.setPassword(passwordEncoder.encode(signUpPayload.getPassword()));
+            newUser.setRole(signUpPayload.getRole()) ;
+            newUser.setRefGen(null);
+            newUser.setRefGain(signUpPayload.getRefGain());
 
-            // Save user in DB
-            User savedUser = userRepo.save(user);
-            // setting userId globally
-            userSession.setUserObjectId(savedUser.getId());
-            return "200"; // successfully saved
+            userRepo.save(newUser) ;
+
+            // Generate jwt and return token
+            return jwtUtil.generateToken(newUser.getEmail(), newUser.getRole());
+
         } catch (Exception e) {
             return "500"; // Return 500 in case of an exception
         }
     }
 
     @Override
-    public String loginUser (User user)
+    public String loginUser (LogInPayload logInPayload)
     {
-        try {
-          Optional<User> optionalUser =  userRepo.findByEmail(user.getEmail()) ;
-          if (optionalUser.isPresent())
-          {
-              User fetchedUser = optionalUser.get() ;
-              if (Objects.equals(fetchedUser.getPassword(), user.getPassword()))
-              {
-                  userSession.setUserObjectId(fetchedUser.getId());
-                  return "200" ;
-              }
-              else return "403" ;
-          }
-          return  "404" ;
+        try{
+            Optional<User> optionalUser = userRepo.findByEmail(logInPayload.getEmail()) ;
+            if (optionalUser.isEmpty()) {
+                return "404";
+            }
+            User user = optionalUser.get() ;
+            if (!passwordEncoder.matches(logInPayload.getPassword(), user.getPassword())) {
+                return "409" ;
+            }
+            return jwtUtil.generateToken(user.getEmail(), user.getRole());
+        }
+        catch (Exception e)
+        {
+            return "500" ;
+        }
+    }
+
+    @Override
+    @Transactional
+    public String updateUserRefGen(String email) {
+        try{
+            Optional<User> optionalUser = userRepo.findByEmail(email);
+            if (optionalUser.isEmpty()) return "404-1";
+            ObjectId userId = optionalUser.get().getId();
+            Optional<Referral> optionalReferral = referralRepo.findByUserId(userId);
+            if (optionalReferral.isEmpty()) return "404-2";
+
+            User user = optionalUser.get();
+            user.setRefGen(optionalReferral.get().getRefcode().toString());
+
+            userRepo.save(user) ;
+            return user.getRefGen();
         }
         catch (Exception e)
         {

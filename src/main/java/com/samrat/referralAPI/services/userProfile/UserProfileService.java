@@ -3,7 +3,6 @@ package com.samrat.referralAPI.services.userProfile;
 import com.samrat.referralAPI.models.User;
 import com.samrat.referralAPI.models.UserProfile;
 import com.samrat.referralAPI.repositories.UserProfileRepo;
-import com.samrat.referralAPI.repositories.UserRepo;
 import com.samrat.referralAPI.utils.UserSession;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +16,7 @@ public class UserProfileService implements UserProfileInterface{
     @Autowired
     UserProfileRepo userProfileRepo ;
     @Autowired
-    UserRepo userRepo ;
+    com.samrat.referralAPI.repositories.UserRepo userRepo ;
     @Autowired
     UserSession userSession ;
     @Override
