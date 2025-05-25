@@ -3,8 +3,6 @@ package com.samrat.referralAPI.services.userProfile;
 import com.samrat.referralAPI.models.User;
 import com.samrat.referralAPI.models.UserProfile;
 import com.samrat.referralAPI.repositories.UserProfileRepo;
-import com.samrat.referralAPI.utils.UserSession;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,29 +15,19 @@ public class UserProfileService implements UserProfileInterface{
     UserProfileRepo userProfileRepo ;
     @Autowired
     com.samrat.referralAPI.repositories.UserRepo userRepo ;
-    @Autowired
-    UserSession userSession ;
     @Override
     @Transactional
-    public String createUserProfileAndLinkup(UserProfile userProfile) {
+    public String createUserProfileAndLinkup(UserProfile userProfile, String email) {
         try {
-            // fetch userId
-            ObjectId userId = userSession.getUserObjectId() ;
-            if (userId == null) return  null ;
-
-
-            // link profile's userId with user's object id
-            userProfile.setUserId(userId);
-
             // create UserProfile in db
             UserProfile savedUserProfile = userProfileRepo.save(userProfile) ;
 
-
             // link user's profile id with profile's object id
-            Optional<User> user = userRepo.findById(userId);
+            Optional<User> user = userRepo.findByEmail(email);
             if (user.isPresent())
             {
                 User fetchedUser = user.get();
+                userProfile.setUserId(fetchedUser.getId()); // link profile's userId with user's object id
                 fetchedUser.setProfileId(savedUserProfile.getId());
 
                 userRepo.save(fetchedUser) ;

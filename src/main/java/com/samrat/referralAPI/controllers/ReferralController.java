@@ -4,12 +4,11 @@ package com.samrat.referralAPI.controllers;
 import com.samrat.referralAPI.models.Referral;
 import com.samrat.referralAPI.models.User;
 import com.samrat.referralAPI.services.referral.ReferralInterface;
+import com.samrat.referralAPI.utils.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -19,14 +18,17 @@ import java.util.Optional;
 @RestController
 @RequestMapping ("/api/referral")
 public class ReferralController {
+
+    @Autowired
+    JwtUtil jwtUtil ;
     @Autowired
     ReferralInterface referralInterface ;
 
 
     @GetMapping("/track")
-    public ResponseEntity<?> fetchSuccessAndPending ()
+    public ResponseEntity<?> fetchSuccessAndPending (@RequestHeader("Authorization") String token)
     {
-        List<List<Optional<User>>> ans = referralInterface.fetchSuccessAndPending();
+        List<List<Optional<User>>> ans = referralInterface.fetchSuccessAndPending(jwtUtil.extractEmail(token));
        return ResponseEntity.ok().body(ans) ;
        // return null ;
     }

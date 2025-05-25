@@ -43,15 +43,26 @@ public class AuthController {
                 return ResponseEntity.status(500).body("some error-occurred") ;
             }
         }
-        String resp = userService.createUser(signUpPayload) ;
-        if (Objects.equals(resp, "409") || Objects.equals(resp, "404") || Objects.equals(resp, "500")) {
-            return  ResponseEntity.status(500).body("error") ;
+        String resp1 = userService.createUser(signUpPayload) ;
+        if (Objects.equals(resp1, "409") || Objects.equals(resp1, "404") || Objects.equals(resp1, "500")) {
+            return  ResponseEntity.status(Integer.parseInt(resp1)).body("error-1") ;
         }
-        return ResponseEntity.ok(Map.of(
-                "message", "Signup successful",
-                "token", resp
-        ));
+        if (signUpPayload.getRefGain() != null) {
+            String resp2 = referralService.updateEntryForPending(signUpPayload.getRefGain(), signUpPayload.getEmail());
+            if (Objects.equals(resp2, "200"))
+                return ResponseEntity.ok(Map.of(
+                        "message", "Signup successful with referral-code",
+                        "token", resp1
 
+                ));
+            else return ResponseEntity.status(500).body("error-2") ;
+        }
+
+        return ResponseEntity.ok(Map.of(
+                "message", "Signup successful without referral-code",
+                "token", resp1
+
+        ));
     }
 
     @GetMapping ("/login")

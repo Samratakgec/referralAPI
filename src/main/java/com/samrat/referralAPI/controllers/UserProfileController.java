@@ -25,26 +25,27 @@ public class UserProfileController {
     @Autowired
     UserService userService ;
 
-    @PostMapping("/new")
+    @PostMapping("/new-profile")
     @Transactional
-    public ResponseEntity<?> createUserProfileAndLinkup (@RequestBody UserProfile userProfile)
+    public ResponseEntity<?> createUserProfileAndLinkup (@RequestBody UserProfile userProfile,@RequestHeader("Authorization") String token)
     {
-        String resp1 = userProfileService.createUserProfileAndLinkup(userProfile);
-        if (Objects.equals(resp1, "200"))
-        {
-            String resp2 = referralService.updateEntryForSuccessfulAndRemoveFromPending() ;
-            if (Objects.equals(resp2, "200"))
-            {
+        if (jwtUtil.isTokenValid(token)) {
+            String email = jwtUtil.extractEmail(token);
+            String resp1 = userProfileService.createUserProfileAndLinkup(userProfile,email);
 
-                return ResponseEntity.status(200).body("User Profile created ");
+            if (Objects.equals(resp1, "200")) {
+                String resp2 = referralService.updateEntryForSuccessfulAndRemoveFromPending(email);
+                if (Objects.equals(resp2, "200")) {
+
+                    return ResponseEntity.status(200).body("User Profile created ");
+                } else {
+                    return ResponseEntity.status(Integer.parseInt(resp2)).body("rollback");
+                }
             }
-            else
-            {
-                return ResponseEntity.status(Integer.parseInt(resp2)).body("rollback") ;
-            }
+
+            return ResponseEntity.status(Integer.parseInt(resp1)).body("error in creating user-profile");
         }
-
-        return ResponseEntity.status(Integer.parseInt(resp1)).body("rollback") ;
+        return ResponseEntity.badRequest().body("in-valid jwt") ;
     }
 
     @PostMapping ("/gen-ref-code")
@@ -65,7 +66,6 @@ public class UserProfileController {
                     "ref-code", resp
             ));
         }
-        System.out.println("jwt moye moye");
-        return ResponseEntity.badRequest().body("JWT invalid") ;
+        return ResponseEntity.badRequest().body("in-valid jwt") ;
     }
 }

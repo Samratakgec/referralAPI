@@ -6,6 +6,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface UserProfileInterface {
-    String createUserProfileAndLinkup (UserProfile userProfile) ;
+    String createUserProfileAndLinkup (UserProfile userProfile, String email) ;
 
 }

@@ -10,10 +10,10 @@ import java.util.Optional;
 @Service
 public interface ReferralInterface {
     String validateRefGain (String refgain) ;
-    String updateEntryForPending (String refgain) ;
+    String updateEntryForPending (String refgain, String email) ;
     String createReferral (String email) ;
-    String updateEntryForSuccessfulAndRemoveFromPending () ;
-    List<List<Optional<User>>>  fetchSuccessAndPending () ;
+    String updateEntryForSuccessfulAndRemoveFromPending (String email) ;
+    List<List<Optional<User>>>  fetchSuccessAndPending (String email) ;
     List<Referral> downloadCSV () ;
 
 }

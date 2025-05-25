@@ -3,7 +3,6 @@ package com.samrat.referralAPI.services.referral;
 import com.samrat.referralAPI.models.Referral;
 import com.samrat.referralAPI.models.User;
 import com.samrat.referralAPI.repositories.ReferralRepo;
-import com.samrat.referralAPI.utils.UserSession;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,8 +17,7 @@ import java.util.Optional;
 public class ReferralService implements ReferralInterface {
     @Autowired
     ReferralRepo referralRepo;
-    @Autowired
-    UserSession userSession;
+
     @Autowired
     com.samrat.referralAPI.repositories.UserRepo userRepo;
 
@@ -38,14 +36,16 @@ public class ReferralService implements ReferralInterface {
 
     @Override
     @Transactional
-    public String updateEntryForPending(String refgain) {
+    public String updateEntryForPending(String refgain, String email) {
         try {
             Optional<Referral> referral = referralRepo.findById(new ObjectId(refgain));
-            ObjectId userId = userSession.getUserObjectId();
             if (referral.isPresent()) {
                 Referral existingReferral = referral.get();
+                Optional<User> optionalUser = userRepo.findByEmail(email) ;
+                if (optionalUser.isEmpty()) return "404-1" ;
+                User user = optionalUser.get() ;
                 List<ObjectId> pendingUsers = existingReferral.getPendingUsers();
-                pendingUsers.add(userId);
+                pendingUsers.add(user.getId());
                 existingReferral.setPendingUsers(pendingUsers);
                 referralRepo.save(existingReferral);
                 return "200";
@@ -82,10 +82,12 @@ public class ReferralService implements ReferralInterface {
 
     @Override
     @Transactional
-    public String updateEntryForSuccessfulAndRemoveFromPending() {
-        final ObjectId userId = userSession.getUserObjectId();
-        if (userId == null) return null;
+    public String updateEntryForSuccessfulAndRemoveFromPending(String email) {
+
         try {
+            Optional<User> optionalUser = userRepo.findByEmail(email) ;
+            if (optionalUser.isEmpty()) return "404" ;
+            ObjectId userId = optionalUser.get().getId() ;
             String refId = userRepo.findById(userId).get().getRefGain();
             if (refId == null) return "200";
             Optional<Referral> referral = referralRepo.findById(new ObjectId(refId));
@@ -108,12 +110,15 @@ public class ReferralService implements ReferralInterface {
 
     @Override
     @Transactional
-    public List<List<Optional<User>>> fetchSuccessAndPending() {
-        final ObjectId userId = userSession.getUserObjectId();
+    public List<List<Optional<User>>> fetchSuccessAndPending(String email) {
+
+        Optional<User> optionalUser = userRepo.findByEmail(email) ;
+        if (optionalUser.isEmpty()) return  null ;
+        final ObjectId userId = optionalUser.get().getId();
         if (userId == null) return null;
-        Optional<Referral> reff = referralRepo.findByUserId(userId);
-        if (reff.isEmpty()) return null;
-        Referral referral = reff.get();
+        Optional<Referral> optionalReferral = referralRepo.findByUserId(userId);
+        if (optionalReferral.isEmpty()) return null;
+        Referral referral = optionalReferral.get();
 
         List<ObjectId> pendingUsersIds = referral.getPendingUsers();
         List<ObjectId> successfulIds = referral.getSuccessfulUsers();

@@ -6,18 +6,14 @@ import com.samrat.referralAPI.models.SignUpPayload;
 import com.samrat.referralAPI.models.User;
 import com.samrat.referralAPI.repositories.ReferralRepo;
 import com.samrat.referralAPI.repositories.UserRepo;
-import com.samrat.referralAPI.services.referral.ReferralService;
 import com.samrat.referralAPI.utils.JwtUtil;
-import com.samrat.referralAPI.utils.UserSession;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Objects;
 import java.util.Optional;
 
 @Service

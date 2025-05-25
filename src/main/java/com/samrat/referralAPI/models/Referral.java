@@ -22,7 +22,7 @@ public class Referral {
     private int usageCount;  // Number of times the referral has been used successfully
 
     private List<ObjectId> successfulUsers;  // List of users who successfully used the referral
-    private List<ObjectId> pendingUsers;  // List of users who signed up but haven't completed referral criteria
+    private List<ObjectId> pendingUsers;  // List of users who signed up but haven't completed their profile
 
     public ObjectId getRefcode() {
         return refcode;
